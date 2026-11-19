@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#172554">
+  <title>MediPredict V5 | Your Knee X-ray Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        midnight:'#172554', steel:'#426B8A', tealmuted:'#477F7A',
+        pearl:'#F4F6F8', slatecustom:'#475569', graphite:'#1E293B',
+        bordercustom:'#DCE2E8'
+      }}}
+    };
+  </script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#F4F6F8;color:#1E293B;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    .panel{background:#fff;border:1px solid #DCE2E8;border-radius:18px;box-shadow:0 8px 26px rgba(23,37,84,.045)}
+    .primary{background:#426B8A;color:white}.primary:hover{background:#345A78}
+    .primary:disabled{opacity:.55;cursor:not-allowed}
+    .upload{border:1.5px dashed #B8C7D4;background:#F8FAFC}
+    .kicker{color:#477F7A;font-size:.72rem;font-weight:750;letter-spacing:.14em;text-transform:uppercase}
+    .hidden{display:none!important}
+    #preview,#heatmap,#overlay{max-width:100%;max-height:360px;object-fit:contain;background:#F8FAFC;border:1px solid #DCE2E8;border-radius:12px}
+    .finding{border:1px solid #DCE2E8;border-radius:13px;padding:14px}
+    .bullet{padding-left:1.1rem;position:relative}.bullet:before{content:"•";position:absolute;left:.1rem;color:#477F7A;font-weight:800}
+    @media print{body{background:#fff}.no-print{display:none!important}.panel{box-shadow:none;break-inside:avoid}main{max-width:100%!important;padding:0!important}}
+  </style>
+</head>
+<body>
+<header class="bg-midnight text-white">
+  <div class="mx-auto flex max-w-5xl items-center gap-4 px-5 py-5">
+    <div class="grid h-11 w-11 place-items-center rounded-xl border border-white/20 bg-white/10 text-xl" aria-hidden="true">✚</div>
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[.2em] text-blue-200">Patient-friendly report</p>
+      <h1 class="text-2xl font-bold">MediPredict <span class="font-medium text-blue-200">V5</span></h1>
+    </div>
+  </div>
+</header>
+
+<main class="mx-auto max-w-5xl px-5 py-8">
+  <section class="mb-7">
+    <p class="kicker">Knee X-ray assessment</p>
+    <h2 class="mt-2 text-3xl font-bold">Understand your result</h2>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-slatecustom">
+      Upload a knee X-ray to receive an AI-estimated Kellgren–Lawrence (KL) grade and a plain-language explanation.
+    </p>
+  </section>
+
+  <section class="panel p-5 md:p-7 no-print">
+    <h3 class="font-semibold">Upload your knee X-ray</h3>
+    <p class="mt-1 text-sm text-slatecustom">Choose a JPG, PNG, BMP, or TIFF image.</p>
+    <div class="upload mt-4 rounded-2xl p-4">
+      <label for="imageInput" class="mb-2 block text-sm font-semibold">Select X-ray image</label>
+      <input id="imageInput" type="file" accept="image/png,image/jpeg,image/bmp,image/tiff"
+        class="block w-full text-sm text-slatecustom">
+      <img id="preview" alt="Selected X-ray preview" class="mt-4 hidden">
+    </div>
+    <div class="mt-4 flex flex-wrap items-center gap-3">
+      <button id="predictBtn" class="primary rounded-xl px-6 py-3 text-sm font-semibold">Analyze X-ray</button>
+      <span id="status" class="text-sm text-slatecustom" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section id="report" class="mt-6 hidden" aria-live="polite">
+    <div class="panel p-5 md:p-7">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p class="kicker">Your AI-estimated result</p>
+          <h2 id="gradeTitle" class="mt-1 text-3xl font-bold"></h2>
+          <p id="gradeSubtitle" class="mt-1 text-slatecustom"></p>
+        </div>
+        <span id="gradeBadge" class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold"></span>
+      </div>
+
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+        <div class="finding">
+          <h3 class="font-semibold">What does this grade mean?</h3>
+          <p id="meaning" class="mt-2 text-sm leading-6 text-slatecustom"></p>
+        </div>
+        <div class="finding">
+          <h3 class="font-semibold">Why did I receive this grade?</h3>
+          <p id="why" class="mt-2 text-sm leading-6 text-slatecustom"></p>
+        </div>
+      </div>
+
+      <div class="mt-5 finding">
+        <h3 class="font-semibold">What changes are associated with this grade?</h3>
+        <p id="changes" class="mt-2 text-sm leading-6 text-slatecustom"></p>
+      </div>
+
+      <div class="mt-5 finding">
+        <h3 class="font-semibold">What symptoms may occur?</h3>
+        <p id="symptoms" class="mt-2 text-sm leading-6 text-slatecustom"></p>
+      </div>
+
+      <div class="mt-5 finding">
+        <h3 class="font-semibold">How can I support my knee health?</h3>
+        <ul id="advice" class="mt-2 space-y-2 text-sm leading-6 text-slatecustom"></ul>
+      </div>
+
+      <div class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4">
+        <h3 class="font-semibold text-amber-950">When should I seek medical help?</h3>
+        <p id="safety" class="mt-2 text-sm leading-6 text-amber-950"></p>
+      </div>
+
+      <div class="mt-5 rounded-xl bg-slate-50 p-4">
+        <h3 class="font-semibold">Important information</h3>
+        <p id="limitation" class="mt-2 text-sm leading-6 text-slatecustom">
+          This is an AI-generated educational explanation, not a confirmed diagnosis. The predicted grade describes X-ray appearance and does not measure pain or knee function. A qualified healthcare professional should review the image and consider your symptoms and examination.
+        </p>
+      </div>
+
+      <div class="no-print mt-6 flex flex-wrap gap-3">
+        <button id="printBtn" class="rounded-xl border border-bordercustom px-5 py-2.5 text-sm font-semibold">Print / Save report</button>
+        <button id="newBtn" class="rounded-xl border border-bordercustom px-5 py-2.5 text-sm font-semibold">Analyze another image</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="visualizations" class="mt-6 hidden grid gap-5 md:grid-cols-2">
+    <div class="panel p-5">
+      <h3 class="font-semibold">AI attention heatmap</h3>
+      <p class="mb-3 mt-1 text-xs text-slatecustom">Shows image areas that influenced the model. It does not prove a specific abnormality.</p>
+      <img id="heatmap" alt="AI attention heatmap">
+    </div>
+    <div class="panel p-5">
+      <h3 class="font-semibold">X-ray with AI attention overlay</h3>
+      <p class="mb-3 mt-1 text-xs text-slatecustom">A visual aid only; have the X-ray interpreted by a qualified professional.</p>
+      <img id="overlay" alt="X-ray with AI attention overlay">
+    </div>
+  </section>
+
+  <footer class="mt-8 border-t border-bordercustom py-5 text-center text-xs leading-5 text-slatecustom">
+    MediPredict V5 · AI-assisted knee X-ray research tool · Not a substitute for professional medical care
+  </footer>
+</main>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

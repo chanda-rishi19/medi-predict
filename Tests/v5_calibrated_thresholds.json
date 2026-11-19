@@ -1,0 +1,14 @@
+{
+  "source": "v5_validation_predictions.csv",
+  "validation_sample_count": 826,
+  "optimization_metric": "quadratic_weighted_kappa",
+  "constraint": "t0 <= t1 <= t2 <= t3",
+  "thresholds_for_p_grade_gt_0_to_3": [
+    0.675,
+    0.7,
+    0.7,
+    0.7
+  ],
+  "validation_qwk": 0.8378671813740274,
+  "note": "Validation-calibrated thresholds only. Freeze before a single final test evaluation."
+}
